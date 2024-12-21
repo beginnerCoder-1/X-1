@@ -58,21 +58,6 @@ app.get('/api/ragbot', async (req, res) => {
   }
 });
 
-// Brat sticker
-app.get('/api/brat', async (req, res) => {
-  try {
-    const { link } = req.query;
-    if (!link) {
-      return res.status(400).json({ error: 'masukkan text' });
-    }
-    const imageBuffer = await brat(link);
-    res.set('Content-Type', 'image/jpeg'); 
-    res.status(200).send(imageBuffer);     
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Endpoint untuk degreeGuru
 app.get('/api/degreeguru', async (req, res) => {
   try {
