@@ -42,8 +42,10 @@
         <div class="py-2 collapse-inner rounded">
             <a class="collapse-item" target="_blank" href="/api/gpt?text=hai">Chat Gpt memories</a>
             <a class="collapse-item" target="_blank" href="/api/chai?text=siapa nama mu&gaya=jawab dengan tsundere, kalau kamu adalh Dark Ai">Character Ai</a>
+            <a class="collapse-item" target="_blank" href="/api/dark-ai?prompt=halo Dark!">Dark Ai</a>
+            <a class="collapse-item" target="_blank" href="/api/dukun-ai?prompt=halo saya whyuxD">Dukun Sakti Ai</a>
+            <a class="collapse-item" target="_blank" href="/api/jawa-ai?text=hai">Joko Si Jawa Ai</a>
             <a class="collapse-item" target="_blank" href="/api/bing-image?prompt=loli eat a cake">Bing Image Ai</a>
-            <a class="collapse-item" target="_blank" href="/api/gen-adult-rl?prompt=cat">Generate Real 18+</a>
             <a class="collapse-item" target="_blank" href="/api/gen-adult-anim?prompt=loli">Generate Anime 18+</a>
         </div>
       </div>
@@ -53,7 +55,9 @@
              <span>Downloader</span></a>
              <div id="collapseDownloader" class="collapse" aria-labelledby="headingDownloader" data-parent="#accordionSidebar">
              <div class="py-2 collapse-inner rounded">
-               <a class="collapse-item" target="_blank" href="/api/tiktok?url=">Tiktok MP4</a>
+               <a class="collapse-item" target="_blank" href="/api/ytmp3?link=">Yt MP3</a>
+               <a class="collapse-item" target="_blank" href="/api/ytmp4?link=">Yt MP4</a>
+               <a class="collapse-item" target="_blank" href="/api/tiktokMP4?url=">Tiktok MP4</a>
             </div>
           </div>
           
@@ -63,6 +67,8 @@
              <div id="collapseMaker" class="collapse" aria-labelledby="headingMaker" data-parent="#accordionSidebar">
              <div class="py-2 collapse-inner rounded">
              <a class="collapse-item" target="_blank" href="/api/brat?text=halo">Brat</a>
+             <a class="collapse-item" target="_blank" href="/api/carbon?text=const whyuxD">Carbon</a>
+             <a class="collapse-item" target="_blank" href="/api/smeme?link=https://i.ibb.co.com/9rtTrVy/download-1.jpg&atas=text atas&bawah=text bawah">Smeme</a>
              </div>
           </div>
           
@@ -110,6 +116,274 @@
                 aria-labelledby="searchDropdown">
               </div>
             </li>
+            
+            <!--- Tombol Game --->
+            <div class="flex flex-wrap justify-center mt-4">
+    <a class="badge cursor-pointer hover:bg-gray-700 transition-all" id="showGame">
+  <i class="fas fa-gamepad text-red-500"></i>
+  <span class="ml-2">Game</span>
+</a>
+
+<div id="gameOverlay" style="display: none; position: fixed; top: 30%; left: 10%; right: 10%; background-color: rgba(255, 255, 255, 0.9); z-index: 9999; text-align: center; padding: 10px;">
+  <!-- Kotak Game -->
+  <div id="gameContainer" style="width: 90%; height: 180px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 10px; position: relative; background-image: url('background-image.jpg'); background-size: cover;">
+    <!-- Tombol di dalam game -->
+    <button id="startButton" style="position: absolute; left: 10px; bottom: 10px; padding: 5px 10px; cursor: pointer; font-size: 12px; background-color: rgba(0, 0, 0, 0.6); color: white; border-radius: 5px;">Play</button>
+    <button id="jumpButton" style="position: absolute; right: 10px; bottom: 10px; padding: 5px 10px; cursor: pointer; font-size: 12px; background-color: rgba(0, 0, 0, 0.6); color: white; border-radius: 5px;">Lompat</button>
+    <button id="stopButton" style="position: absolute; left: 80px; bottom: 10px; padding: 5px 10px; cursor: pointer; font-size: 12px; background-color: rgba(0, 0, 0, 0.6); color: white; border-radius: 5px;">Stop</button>
+
+    <!-- Canvas game -->
+    <canvas id="dinoGame" width="250" height="120" style="background-color: #f0f0f0;"></canvas>
+  </div>
+  <button id="closeGame" style="position: absolute; top: -10px; right: -10px; font-size: 12px; padding: 5px 10px; background-color: red; color: white; border-radius: 8px; cursor: pointer; border: none;">X</button>
+</div>
+
+<script>
+  const showGameBtn = document.getElementById("showGame");
+  const gameOverlay = document.getElementById("gameOverlay");
+  const startButton = document.getElementById("startButton");
+  const jumpButton = document.getElementById("jumpButton");
+  const stopButton = document.getElementById("stopButton");
+  const closeGameBtn = document.getElementById("closeGame");
+
+  let gameInterval;
+  let isPlaying = false;
+  let isPaused = false;
+
+  // Audio backsound
+  const backsound = new Audio("https://files.catbox.moe/d2nlvt.mp3");
+  backsound.loop = true;
+
+  showGameBtn.addEventListener("click", () => {
+    gameOverlay.style.display = "block";
+    backsound.play(); // Putar backsound saat game dimulai
+  });
+
+  closeGameBtn.addEventListener("click", () => {
+    gameOverlay.style.display = "none";
+    backsound.pause(); // Hentikan backsound saat game ditutup
+    backsound.currentTime = 0; // Reset audio ke awal
+    stopGame(); // Hentikan game
+  });
+
+  startButton.addEventListener("click", () => {
+    if (!isPlaying) {
+      startGame();
+      startButton.style.display = "none"; // Hilangkan tombol Play saat game dimulai
+    }
+  });
+
+  stopButton.addEventListener("click", togglePause);
+
+  function startGame() {
+    isPlaying = true;
+    isPaused = false;
+
+    const canvas = document.getElementById("dinoGame");
+    const ctx = canvas.getContext("2d");
+
+    let dino = { x: 20, y: 100, width: 15, height: 15, vy: 0, jump: -8, gravity: 0.5 };
+    let cactus = { x: 250, y: 100, width: 15, height: 15, speed: 4 };
+    let score = 0;
+    let isJumping = false;
+    let gameOver = false;
+
+    function drawDino() {
+      ctx.fillStyle = "black";
+      ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+    }
+
+    function drawCactus() {
+      ctx.fillStyle = "green";
+      ctx.fillRect(cactus.x, cactus.y, cactus.width, cactus.height);
+    }
+
+    function drawScore() {
+      ctx.fillStyle = "black";
+      ctx.font = "16px Arial";
+      ctx.fillText(`Score: ${score}`, 10, 20);
+    }
+
+    function drawGameOver() {
+      ctx.fillStyle = "red";
+      ctx.font = "20px Arial";
+      ctx.fillText("Game Over!", 80, 70);
+    }
+
+    function updateDino() {
+      dino.y += dino.vy;
+      dino.vy += dino.gravity;
+
+      if (dino.y > 100) {
+        dino.y = 100;
+        dino.vy = 0;
+        isJumping = false;
+      }
+    }
+
+    function updateCactus() {
+      cactus.x -= cactus.speed;
+      if (cactus.x + cactus.width < 0) {
+        cactus.x = 250;
+        score++;
+      }
+    }
+
+    function detectCollision() {
+      return (
+        dino.x < cactus.x + cactus.width &&
+        dino.x + dino.width > cactus.x &&
+        dino.y < cactus.y + cactus.height &&
+        dino.y + dino.height > cactus.y
+      );
+    }
+
+    function gameLoop() {
+      if (isPaused) return;
+
+      if (gameOver) {
+        drawGameOver();
+
+        clearInterval(gameInterval);
+        isPlaying = false;
+        startButton.style.display = "block"; // Tampilkan tombol Play Again
+        return;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawDino();
+      drawCactus();
+      drawScore();
+
+      updateDino();
+      updateCactus();
+
+      if (detectCollision()) {
+        gameOver = true;
+      }
+    }
+
+    jumpButton.addEventListener("click", () => {
+      if (!isJumping) {
+        dino.vy = dino.jump;
+        isJumping = true;
+      }
+    });
+
+    gameInterval = setInterval(() => {
+      gameLoop();
+    }, 1000 / 60);
+  }
+
+  function togglePause() {
+    isPaused = !isPaused;
+    stopButton.textContent = isPaused ? "Resume" : "Stop";
+  }
+
+  function stopGame() {
+    clearInterval(gameInterval);
+    isPlaying = false;
+    startButton.style.display = "block"; // Tampilkan kembali tombol Play saat game dihentikan
+  }
+</script>
+  
+<!-- Tombol Text to image -->
+<a id="generate-btn" class="badge cursor-pointer hover:bg-gray-700 transition-all">
+  <i class="fas fa-image text-cyan-500"></i>
+  <span class="ml-2">
+    txt to image
+  </span>
+</a>
+
+<!-- Input Prompt -->
+<div id="prompt-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); width: 400px;">
+  <label for="prompt-input" style="display: block; margin-bottom: 10px; font-weight: bold; font-size: 18px; color: #2c3e50; text-align: left; margin-left: 15px;">Masukkan Prompt:</label>
+  <textarea id="prompt-input" rows="5" style="width: calc(100% - 30px); padding: 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; color: #34495e; margin-bottom: 15px; resize: none; margin-left: 15px;"></textarea>
+  <div style="text-align: center;">
+    <button id="close-btn" style="background: #e74c3c; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">Close</button>
+    <button id="submit-btn" style="background: #1abc9c; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-left: 10px;">Generate</button>
+  </div>
+  <p id="wait-message" style="display: none; text-align: center; margin-top: 10px; color: #e67e22; font-size: 14px;">
+    Wait 30 seconds...
+    <span id="loading-spinner" style="display: inline-block; width: 16px; height: 16px; border: 3px solid #e67e22; border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-left: 10px;"></span>
+  </p>
+</div>
+
+<!-- Container untuk menampilkan hasil gambar -->
+<div id="result" style="margin-top: 20px; text-align: center;"></div>
+
+<script>
+  const generateBtn = document.getElementById('generate-btn');
+  const promptModal = document.getElementById('prompt-modal');
+  const promptInput = document.getElementById('prompt-input');
+  const submitBtn = document.getElementById('submit-btn');
+  const closeBtn = document.getElementById('close-btn');
+  const resultContainer = document.getElementById('result');
+  const waitMessage = document.getElementById('wait-message');
+  const loadingSpinner = document.getElementById('loading-spinner');
+  generateBtn.addEventListener('click', () => {
+    promptModal.style.display = 'block';
+  });
+
+  closeBtn.addEventListener('click', () => {
+    promptModal.style.display = 'none';
+    promptInput.value = ''; // Reset input
+  });
+
+  submitBtn.addEventListener('click', async () => {
+    const prompt = promptInput.value.trim();
+    if (!prompt) {
+      alert('Prompt tidak boleh kosong!');
+      return;
+    }
+
+    try {
+      waitMessage.style.display = 'block';
+
+      // Fetch ke API
+      const response = await fetch(`https://api.ryzendesu.vip/api/ai/v2/text2img?prompt=${encodeURIComponent(prompt)}&model=`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) throw new Error('Gagal memuat gambar, coba ubah prompt!');
+
+      const blob = await response.blob(); // Dapatkan respons sebagai biner
+      const imageUrl = URL.createObjectURL(blob); // Konversi ke URL
+
+      resultContainer.innerHTML = `
+        <div style="display: inline-block; padding: 15px; border: 3px solid #2c3e50; border-radius: 10px; background: #ecf0f1; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);">
+          <p style="font-weight: bold; font-size: 18px; color: #2c3e50;">Hasil gambar dari prompt: "${prompt}"</p>
+          <img src="${imageUrl}" alt="Generated Image" style="max-width: 100%; border-radius: 5px; margin-bottom: 15px;">
+          <div style="text-align: center;">
+            <button id="close-result" style="background: #e74c3c; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-left: 10px;">Close</button>
+            <a href="${imageUrl}" download="generated_image.jpg" style="background: #1abc9c; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; text-decoration: none;">Download</a>
+          </div>
+          <p style="font-size: 12px; color: #7f8c8d; margin-top: 10px;">by whyuxD-X</p>
+        </div>
+      `;
+      document.getElementById('close-result').addEventListener('click', () => {
+        resultContainer.innerHTML = '';
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Gagal memuat gambar. Silakan coba lagi!');
+    } finally {
+      waitMessage.style.display = 'none';
+      promptModal.style.display = 'none';
+      promptInput.value = ''; 
+    }
+  });
+</script>
+
+<style>
+  /* Animasi loading kecil */
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+</div>
             <li class="nav-item dropdown no-arrow mx-1">
               <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
@@ -148,7 +422,7 @@
             </ul>
   </nav>
                 <!-- Sidebar -->
-
+                	
                     <!-- Container Fluid-->
               <div class="container-fluid" id="container-wrapper">
                 <div class="card h-50 mb-4">
@@ -172,7 +446,7 @@
       <div class="mt-4">
     <div class="card">
   <a href="https://chat.whatsapp.com/I0BAZxGYlrE5jFHiAOr14U" target="_blank" class="flex items-center space-x-2 cursor-pointer hover:bg-gray-700 p-2 rounded-lg transition-all">
-    <i class="fas fa-comment text-white">
+    <i class="fas fa-comment text-black">
     </i>
     <span>
       Join my group
@@ -183,7 +457,7 @@
 </div>
     <div class="card">
   <a href="https://whatsapp.com/channel/0029Van6ItnIyPtYQU3k0z3s" target="_blank" class="flex items-center space-x-2 cursor-pointer hover:bg-gray-700 p-2 rounded-lg transition-all">
-    <i class="fas fa-dove text-white">
+    <i class="fas fa-dove text-black">
     </i>
     <span>
       Saluran WhatsApp

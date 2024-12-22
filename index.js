@@ -41,40 +41,26 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname,  'index.html'));
 });
 
-app.get('/api/ragbot', async (req, res) => {
+// DarkBot (AI)
+app.get('/api/dark-ai', async (req, res) => {
   try {
-    const message = req.query.message;
-    if (!message) {
-      return res.status(400).json({ error: 'Parameter "message" tidak ditemukan' });
+    const { prompt } = req.query;
+    if (!prompt) {
+      return res.status(400).json({ error: 'Masukkan prompt terlebih dahulu.' });
     }
-    const response = await wxd.ragBot(message);
+    const apiurl = `https://btch.us.kg/prompt/gpt?prompt=kamu%20adalah%20Dark%20ai%20buatan%20whyuxD,%20kamu%20harus%20bersikap%20sok%20asik%20dan%20gunakan%20emoji%20untuk%20pesan%20yang%20seru!&text=${encodeURIComponent(prompt)}`;
+    const response = await axios.get(apiurl);
+    const { result } = response.data;
     res.status(200).json({
       status: 200,
-      creator: "whyuxD",
-      data: { response }
+      creator: 'whyuxD',
+      response: result,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Endpoint untuk degreeGuru
-app.get('/api/degreeguru', async (req, res) => {
-  try {
-    const { message }= req.query;
-    if (!message) {
-      return res.status(400).json({ error: 'Parameter "message" tidak ditemukan' });
-    }
-    const response = await wxd.degreeGuru(message);
-    res.status(200).json({
-      status: 200,
-      creator: "whyuxD",
-      data: { response }
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // Bing image (AI)
 app.get('/api/bing-image', async (req, res) => {
@@ -87,6 +73,26 @@ app.get('/api/bing-image', async (req, res) => {
     const response = await axios.get(apiurl, { responseType: 'stream' });
     res.setHeader('Content-Type', 'image/jpeg');
     response.data.pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Dukun (AI)
+app.get('/api/dukun-ai', async (req, res) => {
+  try {
+    const { prompt } = req.query;
+    if (!prompt) {
+      return res.status(400).json({ error: 'Masukkan prompt terlebih dahulu!' });
+    }
+    const apiurl = `https://api.siputzx.my.id/api/ai/dukun?content=${encodeURIComponent(prompt)}`;
+    const response = await axios.get(apiurl);
+    const { data } = response.data;
+    res.status(200).json({
+      status: 200,
+      creator: 'whyuxD',
+      response: data,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -112,6 +118,26 @@ app.get('/api/chai', async (req, res) => {
   }
 });
 
+// Joko si jawa (AI)
+app.get('/api/jawa-ai', async (req, res) => {
+  try {
+    const { text } = req.query;
+    if (!text) {
+      return res.status(400).json({ error: 'Masukkan text dulu woi!' });
+    }
+    const apiurl = `https://api.siputzx.my.id/api/ai/joko?content=${encodeURIComponent(text)}`;
+    const response = await axios.get(apiurl);
+    const { data } = response.data;
+    res.status(200).json({
+      status: 200,
+      creator: 'whyuxD',
+      response: data,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Brat (MAKER)
 app.get('/api/brat', async (req, res) => {
   try {
@@ -128,8 +154,40 @@ app.get('/api/brat', async (req, res) => {
   }
 });
 
+// Smeme (MAKER)
+app.get('/api/smeme', async (req, res) => {
+  try {
+    const { link, atas, bawah } = req.query;
+    if (!link || !atas || !bawah) {
+      return res.status(400).json({ error: 'Isi (link) dengan url gambar, isi juga text atas, dan text bawah!' });
+    }
+    const apiurl = `https://api.siputzx.my.id/api/m/memgen?link=${link}&top=${atas}&bottom=${bawah}&font=1`
+    const response = await axios.get(apiurl, { responseType: 'stream' });
+    res.setHeader('Content-Type', 'image/jpeg');
+    response.data.pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Carbon coding (MAKER)
+app.get('/api/carbon', async (req, res) => {
+  try {
+    const { text } = req.query;
+    if (!text) {
+      return res.status(400).json({ error: 'Masukkan text nya dulu' });
+    }
+    const apiurl = `https://api.siputzx.my.id/api/m/carbonify?input=${encodeURIComponent(text)}`;
+    const response = await axios.get(apiurl, { responseType: 'stream' });
+    res.setHeader('Content-Type', 'image/png');
+    response.data.pipe(res); 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Tiktok mp4 (DOWNLOADER)
-app.get('/api/tiktok', async (req, res) => {
+app.get('/api/tiktokMP4', async (req, res) => {
   try {
     const { url } = req.query;
     if (!url) {
@@ -147,31 +205,51 @@ app.get('/api/tiktok', async (req, res) => {
   }
 });
 
-// Generate adult real (AI)
-app.get('/api/gen-adult-rl', async (req, res) => {
+// Yt mp3 (DOWNLOADER)
+app.get('/api/ytmp3', async (req, res) => {
   try {
-    const { prompt } = req.query;
-    if (!prompt) {
-      return res.status(400).json({ error: 'Masukkan prompt nya dulu kocag' });
+    const { link } = req.query;
+    if (!link) {
+      return res.status(400).json({ error: 'Masukkan dulu link YouTube ny!' });
     }
-    const apiurl = `https://sandipbaruwal.onrender.com/pussy?prompt=${prompt}`;
-    const response = await axios.get(apiurl, {
-      timeout: 20000, 
-    });
-    const { url } = response.data;
+    const apiurl = `https://api.siputzx.my.id/api/d/ytmp3?url=${link}`;
+    const response = await axios.get(apiurl);
+    const { title, dl } = response.data;
     res.status(200).json({
       status: 200,
       creator: 'whyuxD',
-      url: url,
+      data: {
+        title: title,
+        url: dl,
+      },
     });
   } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      return res.status(504).json({ error: 'Timeout: API terlalu lama merespons!' });
-    }
     res.status(500).json({ error: error.message });
   }
 });
 
+// Yt mp4 (DOWNLOADER)
+app.get('/api/ytmp4', async (req, res) => {
+  try {
+    const { link } = req.query;
+    if (!link) {
+      return res.status(400).json({ error: 'Masukkan dulu link YouTube nya' });
+    }
+    const apiurl = `https://api.siputzx.my.id/api/d/ytmp4?url=${link}`;
+    const response = await axios.get(apiurl);
+    const { title, dl } = response.data;
+    res.status(200).json({
+      status: 200,
+      creator: 'whyuxD',
+      data: {
+        title: title,
+        url: dl,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Generate adult anime (AI)
 app.get('/api/gen-adult-anim', async (req, res) => {
@@ -180,10 +258,10 @@ app.get('/api/gen-adult-anim', async (req, res) => {
     if (!prompt) {
       return res.status(400).json({ error: 'Masukkan prompt nya' });
     }
-    const apiurl = `https://love.neekoi.me/miseki?text=${text}`;
+    const apiurl = `https://love.neekoi.me/miseki?text=${prompt}`;
     const response = await axios.get(apiurl, {
       responseType: 'stream',
-      timeout: 20000, // 20 detik
+      timeout: 30000, // 30 detik
     });
     res.setHeader('Content-Type', 'image/jpeg');
     response.data.pipe(res);
@@ -191,25 +269,6 @@ app.get('/api/gen-adult-anim', async (req, res) => {
     if (error.code === 'ECONNABORTED') {
       return res.status(504).json({ error: 'Timeout: API tidak merespons dalam waktu yang ditentukan' });
     }
-    res.status(500).json({ error: error.message });
-  }
-});
-
-
-// Endpoint untuk smartContract
-app.get('/api/smartcontract', async (req, res) => {
-  try {
-    const message = req.query.message;
-    if (!message) {
-      return res.status(400).json({ error: 'Parameter "message" tidak ditemukan' });
-    }
-    const response = await wxd.smartContract(message);
-    res.status(200).json({
-      status: 200,
-      creator: "whyuxD",
-      data: { response }
-    });
-  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
