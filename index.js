@@ -76,7 +76,7 @@ app.get('/api/degreeguru', async (req, res) => {
   }
 });
 
-// Bing image
+// Bing image (AI)
 app.get('/api/bing-image', async (req, res) => {
   try {
     const { prompt } = req.query;
@@ -92,7 +92,27 @@ app.get('/api/bing-image', async (req, res) => {
   }
 });
 
-// Maker Brat
+// Character Ai (AI)
+app.get('/api/chai', async (req, res) => {
+  try {
+    const { text, gaya } = req.query;
+    if (!text || !gaya) {
+      return res.status(400).json({ error: 'Masukkan dulu format text dan gaya dari Character nya' });
+    }
+    const apiurl = `https://api.nyxs.pw/ai/character-ai?prompt=${text}&gaya=${gaya}`;
+    const response = await axios.get(apiurl);
+    const { result } = response.data;
+    res.status(200).json({
+      status: 200,
+      creator: 'whyuxD',
+      response: result,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Brat (MAKER)
 app.get('/api/brat', async (req, res) => {
   try {
     const { text } = req.query;
@@ -108,7 +128,7 @@ app.get('/api/brat', async (req, res) => {
   }
 });
 
-// Tiktok download
+// Tiktok mp4 (DOWNLOADER)
 app.get('/api/tiktok', async (req, res) => {
   try {
     const { url } = req.query;
@@ -127,7 +147,7 @@ app.get('/api/tiktok', async (req, res) => {
   }
 });
 
-// Generate adult
+// Generate adult real (AI)
 app.get('/api/gen-adult-rl', async (req, res) => {
   try {
     const { prompt } = req.query;
@@ -135,31 +155,42 @@ app.get('/api/gen-adult-rl', async (req, res) => {
       return res.status(400).json({ error: 'Masukkan prompt nya dulu kocag' });
     }
     const apiurl = `https://sandipbaruwal.onrender.com/pussy?prompt=${prompt}`;
-    const response = await axios.get(apiurl);
+    const response = await axios.get(apiurl, {
+      timeout: 20000, 
+    });
     const { url } = response.data;
     res.status(200).json({
       status: 200,
       creator: 'whyuxD',
-      url: url
+      url: url,
     });
-
   } catch (error) {
+    if (error.code === 'ECONNABORTED') {
+      return res.status(504).json({ error: 'Timeout: API terlalu lama merespons!' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
 
-// Generate adult anime
+
+// Generate adult anime (AI)
 app.get('/api/gen-adult-anim', async (req, res) => {
   try {
-    const { text } = req.query;
-    if (!text) {
+    const { prompt } = req.query;
+    if (!prompt) {
       return res.status(400).json({ error: 'Masukkan prompt nya' });
     }
     const apiurl = `https://love.neekoi.me/miseki?text=${text}`;
-    const response = await axios.get(apiurl, { responseType: 'stream' });
+    const response = await axios.get(apiurl, {
+      responseType: 'stream',
+      timeout: 20000, // 20 detik
+    });
     res.setHeader('Content-Type', 'image/jpeg');
     response.data.pipe(res);
   } catch (error) {
+    if (error.code === 'ECONNABORTED') {
+      return res.status(504).json({ error: 'Timeout: API tidak merespons dalam waktu yang ditentukan' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
@@ -201,6 +232,7 @@ app.get('/api/blackboxAIChat', async (req, res) => {
   }
 });
 
+// Chat Gpt (AI)
 app.get("/api/gpt", async (req, res) => {
 const text = req.query.text;
 
