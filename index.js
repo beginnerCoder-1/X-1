@@ -41,6 +41,38 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname,  'index.html'));
 });
 
+
+// Galau (RANDOM)
+app.get('/api/random-galau', async (req, res) => {
+  try {
+    const apiurl = 'https://api.vreden.my.id/api/galau';
+    const response = await axios.get(apiurl, { responseType: 'stream' });
+    res.setHeader('Content-Type', 'video/mp4');
+    response.data.pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Gore (RANDOM)
+app.get('/api/random-gore', async (req, res) => {
+  try {
+    const apiurl = 'https://btch.us.kg/randomgore';
+    const response = await axios.get(apiurl);
+    const { title, url } = response.data.result;
+    res.status(200).json({
+      status: 200,
+      creator: 'whyuxD',
+      result: {
+        title: title,
+        url: url
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // DarkBot (AI)
 app.get('/api/dark-ai', async (req, res) => {
   try {
