@@ -451,27 +451,9 @@ app.get('/api/gen-adult-anim', async (req, res) => {
     }
     const apiurl = `https://love.neekoi.me/miseki?text=${encodeURIComponent(prompt)}`;
     const response = await axios.get(apiurl, { responseType: 'stream' });
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Delay 3000ms (3 detik)
     res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Cache-Control', 'no-cache');
     response.data.pipe(res);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Endpoint untuk blackboxAIChat
-app.get('/api/blackboxAIChat', async (req, res) => {
-  try {
-    const message = req.query.message;
-    if (!message) {
-      return res.status(400).json({ error: 'Parameter "message" tidak ditemukan' });
-    }
-    const response = await wxd.blackboxAIChat(message);
-    res.status(200).json({
-      status: 200,
-      creator: "whyuxD",
-      data: { response }
-    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
