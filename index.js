@@ -93,6 +93,28 @@ app.get('/api/dark-ai', async (req, res) => {
   }
 });
 
+// Logic Detect (AI)
+app.get('/api/logic-detect', async (req, res) => {
+  try {
+    const { text } = req.query;
+    if (!text) {
+      return res.status(400).json({ error: 'Masukkan text terlebih dahulu' });
+    }
+    const apiurl = `https://api.vreden.my.id/api/logic?query=${encodeURIComponent(text)}`;
+    const response = await axios.get(apiurl);
+    const { cmd, query } = response.data.result;
+    res.status(200).json({
+      status: 200,
+      creator: 'whyuxD',
+      data: {
+        cmd: cmd,
+        query: query
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Bing image (AI)
 app.get('/api/bing-image', async (req, res) => {
@@ -218,6 +240,42 @@ app.get('/api/carbon', async (req, res) => {
   }
 });
 
+// Level Up (MAKER)
+app.get('/api/levelUp', async (req, res) => {
+  try {
+    const { background, name, level, levelup, avatar } = req.query;
+    if (!background || !name || !level || !levelup || !avatar) {
+      return res.status(400).json({ 
+        error: 'Masukkan semua parameter: background, name, level, levelup, avatar'
+      });
+    }
+    const apiurl = `https://api.vreden.my.id/api/levelup?background=${encodeURIComponent(background)}&name=${encodeURIComponent(name)}&level=${encodeURIComponent(level)}&levelup=${encodeURIComponent(levelup)}&avatar=${encodeURIComponent(avatar)}`;
+    const response = await axios.get(apiurl, { responseType: 'stream' });
+    res.setHeader('Content-Type', 'image/jpeg');
+    response.data.pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Fake Tweeter comment (MAKER)
+app.get('/api/tweet-maker', async (req, res) => {
+  try {
+    const { username, displayname, comment, avatar } = req.query;
+    if (!username || !displayname || !comment || !avatar) {
+      return res.status(400).json({ 
+        error: 'Masukkan semua parameter: theme, username, displayname, comment, avatar' 
+      });
+    }
+    const apiurl = `https://api.vreden.my.id/api/tweet?theme=dark&username=${encodeURIComponent(username)}&displayname=${encodeURIComponent(displayname)}&comment=${encodeURIComponent(comment)}&avatar=${encodeURIComponent(avatar)}`;
+    const response = await axios.get(apiurl, { responseType: 'stream' });
+    res.setHeader('Content-Type', 'image/jpeg');
+    response.data.pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Tiktok mp4 (DOWNLOADER)
 app.get('/api/tiktokMP4', async (req, res) => {
   try {
@@ -283,24 +341,120 @@ app.get('/api/ytmp4', async (req, res) => {
   }
 });
 
+// MediaFire (DOWNLOADER)
+app.get('/api/mediaFire', async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) {
+      return res.status(400).json({ error: 'Masukkan URL mediafire terlebih dahulu' });
+    }
+    const apiurl = `https://api.vreden.my.id/api/mediafiredl?url=${encodeURIComponent(url)}`;
+    const response = await axios.get(apiurl);
+    const { nama, mime, size, link } = response.data.result;
+    res.status(200).json({
+      status: 200,
+      creator: 'whyuxD',
+      result: {
+        nama: nama,
+        mime: mime,
+        size: size,
+        link: link
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Ssweb (TOOLS)
+app.get('/api/ssweb', async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) {
+      return res.status(400).json({ error: 'Masukkan URL website dulu woi!' });
+    }
+    const apiurl = `https://api.vreden.my.id/api/ssweb?url=${encodeURIComponent(url)}&type=tablet`;
+    const response = await axios.get(apiurl, { responseType: 'stream' });
+    res.setHeader('Content-Type', 'image/png');
+    response.data.pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Audio to text (TOOLS)
+app.get('/api/audio2text', async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) {
+      return res.status(400).json({ error: 'Mana URL audio nya!' });
+    }
+    const apiurl = `https://vapis.my.id/api/audio2txt?url=${encodeURIComponent(url)}`;
+    const response = await axios.get(apiurl);
+    const { result } = response.data;
+    res.status(200).json({
+      status: 200,
+      creator: 'whyuxD',
+      result: result
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Remini (TOOLS)
+app.get('/api/remini', async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) {
+      return res.status(400).json({ error: 'Masukkan URL gambar dulu!' });
+    }
+    const apiurl = `https://vapis.my.id/api/reminiv2?url=${encodeURIComponent(url)}`;
+    const response = await axios.get(apiurl, { responseType: 'stream' });
+    res.setHeader('Content-Type', 'image/jpeg');
+    response.data.pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Google Drive (DOWNLOADER)
+app.get('/api/drive', async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) {
+      return res.status(400).json({ error: 'Masukkan URL dari google drive' });
+    }
+    const apiurl = `https://api.vreden.my.id/api/drive?url=${encodeURIComponent(url)}`;
+    const response = await axios.get(apiurl);
+    const { fileName, sizeBytes, downloadUrl } = response.data.result;
+    res.status(200).json({
+      status: 200,
+      creator: 'whyuxD',
+      result: {
+        fileName: fileName,
+        sizeBytes: sizeBytes,
+        downUrl: downloadUrl
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Generate adult anime (AI)
 app.get('/api/gen-adult-anim', async (req, res) => {
   try {
     const { prompt } = req.query;
     if (!prompt) {
-      return res.status(400).json({ error: 'Masukkan prompt nya' });
+      return res.status(400).json({ error: 'Masukkan dulu prompt nya!' });
     }
-    const apiurl = `https://love.neekoi.me/miseki?text=${prompt}`;
-    const response = await axios.get(apiurl, {
-      responseType: 'stream',
-      timeout: 30000, // 30 detik
-    });
+    const apiurl = `https://love.neekoi.me/miseki?text=${encodeURIComponent(prompt)}`;
+    const response = await axios.get(apiurl, { responseType: 'stream' });
     res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control', 'no-cache');
     response.data.pipe(res);
   } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      return res.status(504).json({ error: 'Timeout: API tidak merespons dalam waktu yang ditentukan' });
-    }
     res.status(500).json({ error: error.message });
   }
 });
